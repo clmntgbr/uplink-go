@@ -4,3 +4,6 @@ tmp/
 
 # Air
 build-errors.log
+
+
+.env
