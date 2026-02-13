@@ -1,0 +1,45 @@
+root = "."
+testdata_dir = "testdata"
+# Use system temp so cleanup on exit doesn't hit "device or resource busy" in Docker
+tmp_dir = "/tmp/air"
+
+[build]
+  args_bin = []
+  cmd = "go build -o ./main server.go"
+  delay = 1000
+  entrypoint = ["./main"]
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", "web", "node_modules"]
+  exclude_file = []
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = "./main"
+  include_dir = []
+  include_ext = ["go"]
+  include_file = []
+  kill_delay = "0s"
+  log = "build-errors.log"
+  poll = false
+  poll_interval = 0
+  rerun = false
+  rerun_delay = 500
+  send_interrupt = false
+  stop_on_error = false
+
+[color]
+  app = ""
+  build = "yellow"
+  main = "magenta"
+  runner = "green"
+  watcher = "cyan"
+
+[log]
+  main_only = false
+  time = false
+
+[misc]
+  clean_on_exit = false
+
+[screen]
+  clear_on_rebuild = true
+  keep_scroll = true
