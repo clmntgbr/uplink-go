@@ -91,7 +91,6 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 			})
 		}
 
-
 		_, err = m.userRepo.FindByID(claims.UserID)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
