@@ -6,9 +6,13 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/gofiber/fiber/v3/middleware/helmet"
 	"github.com/gofiber/fiber/v3/middleware/logger"
+	"github.com/gofiber/fiber/v3/middleware/envvar"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+		godotenv.Load()
+	
     app := fiber.New(fiber.Config{
         CaseSensitive: true,
         StrictRouting: true,
@@ -26,6 +30,11 @@ func main() {
 		app.Get(healthcheck.ReadinessEndpoint, healthcheck.New())
 		app.Get(healthcheck.StartupEndpoint, healthcheck.New())
 
+		app.Use("/expose/envvars", envvar.New(
+				envvar.Config{
+						ExportVars: map[string]string{"POSTGRES_PASSWORD": "", "testDefaultKey": "testDefaultVal"},
+				}),
+		)
 		// api := app.Group("/api")
 
 		log.Fatal(app.Listen(":3000"))
