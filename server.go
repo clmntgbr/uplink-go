@@ -5,6 +5,7 @@ import (
 
 	"uplink-go/config"
 	"uplink-go/handler/auth"
+	"uplink-go/handler/project"
 	"uplink-go/handler/user"
 	"uplink-go/middleware"
 	"uplink-go/repository"
@@ -23,11 +24,13 @@ func main() {
 	config.AutoMigrate(db)
 
     userRepo := repository.NewUserRepository(db)
-	authService := service.NewAuthService(userRepo, cfg)
+    projectRepo := repository.NewProjectRepository(db)
+    authService := service.NewAuthService(userRepo, projectRepo, cfg)
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 
     userHandler := user.NewUserHandler(userRepo)
 	authHandler := auth.NewAuthHandler(authService)
+    projectHandler := project.NewProjectHandler(projectRepo, userRepo)
 
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
@@ -51,7 +54,8 @@ func main() {
     api.Post("/register", authHandler.Register)
 	api.Post("/login", authHandler.Login)
 
-    api.Get("/me", authMiddleware.Protected(), userHandler.User)
+    api.Get("/user", authMiddleware.Protected(), userHandler.User)
+    api.Get("/projects", authMiddleware.Protected(), projectHandler.Projects)
 
     log.Fatal(app.Listen(":3000"))
 }

@@ -3,11 +3,11 @@ package service
 import (
 	"errors"
 	"time"
-	
+
 	"uplink-go/config"
 	"uplink-go/domain"
 	"uplink-go/repository"
-	
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -15,12 +15,14 @@ import (
 
 type AuthService struct {
 	userRepo *repository.UserRepository
+	projectRepo *repository.ProjectRepository
 	config   *config.Config
 }
 
-func NewAuthService(userRepo *repository.UserRepository, cfg *config.Config) *AuthService {
+func NewAuthService(userRepo *repository.UserRepository, projectRepo *repository.ProjectRepository, cfg *config.Config) *AuthService {
 	return &AuthService{
 		userRepo: userRepo,
+		projectRepo: projectRepo,
 		config:   cfg,
 	}
 }
@@ -42,12 +44,22 @@ func (s *AuthService) Register(email, password, firstName, lastName string) (*do
 		return nil, err
 	}
 
+	project := &domain.Project{
+		Name: "Default Project",
+	}
+
+	if err := s.projectRepo.Create(project); err != nil {
+		return nil, err
+	}
+
 	user := &domain.User{
 		Email:    email,
 		Password: string(hashedPassword),
 		FirstName: firstName,
 		LastName: lastName,
 		Avatar: "https://avatar-placeholder.iran.liara.run/avatars/male",
+		Projects: []domain.Project{*project},
+		ActiveProjectID: project.ID,
 	}
 
 	if err := s.userRepo.Create(user); err != nil {

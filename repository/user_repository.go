@@ -2,7 +2,7 @@ package repository
 
 import (
 	"uplink-go/domain"
-	
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -35,4 +35,16 @@ func (r *UserRepository) FindByID(id uuid.UUID) (*domain.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *UserRepository) FindProjectsByUserID(userID uuid.UUID) ([]domain.Project, error) {
+	var user domain.User
+	user.ID = userID
+
+	var projects []domain.Project
+	err := r.db.Model(&user).Association("Projects").Find(&projects)
+	if err != nil {
+		return nil, err
+	}
+	return projects, nil
 }
