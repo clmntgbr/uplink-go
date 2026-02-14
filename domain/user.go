@@ -13,6 +13,8 @@ type User struct {
 	LastName  string    `gorm:"not null" json:"last_name"`
 	Avatar    string    `gorm:"not null" json:"avatar"`
 
+	Projects  []Project `gorm:"many2many:user_projects;" json:"projects,omitempty"`
+
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }
