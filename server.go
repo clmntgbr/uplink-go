@@ -2,16 +2,23 @@ package main
 
 import (
 	"log"
+
+	"uplink-go/config"
+
   "github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
 	"github.com/gofiber/fiber/v3/middleware/helmet"
 	"github.com/gofiber/fiber/v3/middleware/logger"
-	"github.com/gofiber/fiber/v3/middleware/envvar"
 	"github.com/joho/godotenv"
+	"os"
+	"strings"
 )
 
 func main() {
-		godotenv.Load()
+		cfg := config.Load()
+
+		db := config.ConnectDatabase(cfg)
+		config.AutoMigrate(db)
 	
     app := fiber.New(fiber.Config{
         CaseSensitive: true,
@@ -29,12 +36,7 @@ func main() {
 		app.Get(healthcheck.LivenessEndpoint, healthcheck.New())
 		app.Get(healthcheck.ReadinessEndpoint, healthcheck.New())
 		app.Get(healthcheck.StartupEndpoint, healthcheck.New())
-
-		app.Use("/expose/envvars", envvar.New(
-				envvar.Config{
-						ExportVars: map[string]string{"POSTGRES_PASSWORD": "", "testDefaultKey": "testDefaultVal"},
-				}),
-		)
+		
 		// api := app.Group("/api")
 
 		log.Fatal(app.Listen(":3000"))
