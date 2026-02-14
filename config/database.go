@@ -19,10 +19,9 @@ func ConnectDatabase(cfg *Config) *gorm.DB {
 		Logger: logger.Default.LogMode(logLevel),
 	})
 	if err != nil {
-		log.Fatal("Failed to connect to database: ", err)
+		log.Fatal("failed to connect to database: ", err)
 	}
 
-	log.Println("✅ Database connected")
 	return db
 }
 
@@ -30,9 +29,8 @@ func AutoMigrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&domain.User{},
 	)
+	
 	if err != nil {
-		log.Fatal("Failed to migrate database: ", err)
+		log.Fatal("failed to migrate database: ", err)
 	}
-
-	log.Println("✅ Database migrated")
 }
