@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"uplink-go/dto"
+
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -25,14 +27,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"token":   token,
-		"user": fiber.Map{
-			"id":    user.ID,
-			"email": user.Email,
-			"first_name": user.FirstName,
-			"last_name": user.LastName,
-			"avatar": user.Avatar,
-			"created_at": user.CreatedAt,
-		},
+		"token": token,
+		"user":  dto.ToUserResponse(user),
 	})
 }

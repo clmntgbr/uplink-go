@@ -1,6 +1,7 @@
 package user
 
 import (
+	"uplink-go/dto"
 	"uplink-go/middleware"
 
 	"github.com/gofiber/fiber/v3"
@@ -21,13 +22,5 @@ func (h *UserHandler) User(c fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(fiber.Map{
-		"id": user.ID,
-		"email": user.Email,
-		"first_name": user.FirstName,
-		"last_name": user.LastName,
-		"avatar": user.Avatar,
-		"created_at": user.CreatedAt,
-		"updated_at": user.UpdatedAt,
-	})
+	return c.JSON(dto.ToUserResponse(user))
 }
