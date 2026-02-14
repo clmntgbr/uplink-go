@@ -28,8 +28,12 @@ func ConnectDatabase(cfg *Config) *gorm.DB {
 func AutoMigrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&domain.User{},
+		&domain.Project{},
+		&domain.Endpoint{},
+		&domain.Step{},
+		&domain.Workflow{},
 	)
-	
+
 	if err != nil {
 		log.Fatal("failed to migrate database: ", err)
 	}

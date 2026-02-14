@@ -12,6 +12,7 @@ type User struct {
 	FirstName string    `gorm:"not null" json:"first_name"`
 	LastName  string    `gorm:"not null" json:"last_name"`
 	Avatar    string    `gorm:"not null" json:"avatar"`
+
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }
