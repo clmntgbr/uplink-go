@@ -1,12 +1,12 @@
 package auth
 
-import "uplink-go/service"
+import "uplink-go/service/auth"
 
 type AuthHandler struct {
-	authService *service.AuthService
+	authService *auth.AuthService
 }
 
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
+func NewAuthHandler(authService *auth.AuthService) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
 	}

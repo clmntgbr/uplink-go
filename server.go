@@ -2,14 +2,14 @@ package main
 
 import (
 	"log"
-
-    "uplink-go/config"
-	"uplink-go/handler/auth"
-	"uplink-go/handler/project"
-	"uplink-go/handler/user"
+	"uplink-go/config"
+	authHandler "uplink-go/handler/auth"
+	projectHandler "uplink-go/handler/project"
+	userHandler "uplink-go/handler/user"
 	"uplink-go/middleware"
 	"uplink-go/repository"
-	"uplink-go/service"
+	"uplink-go/service/auth"
+	"uplink-go/service/project"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
@@ -23,16 +23,17 @@ func main() {
 	db := config.ConnectDatabase(cfg)
 	config.AutoMigrate(db)
 
-    userRepo := repository.NewUserRepository(db)
-    projectRepo := repository.NewProjectRepository(db)
-    authService := auth.NewAuthService(userRepo, projectRepo, cfg)
-	authMiddleware := middleware.NewAuthMiddleware(authService, userRepo)
-    createProjectService := project.NewCreateProjectService(projectRepo)
-    getProjectsService := project.NewGetProjectsService(userRepo)
+	userRepo := repository.NewUserRepository(db)
+	projectRepo := repository.NewProjectRepository(db)
 
-    userHandler := user.NewUserHandler(userRepo)
-	authHandler := auth.NewAuthHandler(authService)
-    projectHandler := project.NewProjectHandler(getProjectsService, createProjectService)
+	authService := auth.NewAuthService(userRepo, projectRepo, cfg)
+	projectService := project.New(projectRepo)
+
+	authMiddleware := middleware.NewAuthMiddleware(authService, userRepo)
+
+	userHandler := userHandler.NewUserHandler(userRepo)
+	authHandler := authHandler.NewAuthHandler(authService)
+	projectHandler := projectHandler.NewProjectHandler(projectService)
 
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
@@ -42,7 +43,6 @@ func main() {
 	})
 
 	app.Use(helmet.New())
-
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
@@ -53,13 +53,13 @@ func main() {
 
 	api := app.Group("/api")
 
-    api.Post("/register", authHandler.Register)
+	api.Post("/register", authHandler.Register)
 	api.Post("/login", authHandler.Login)
 
-    api.Get("/user", authMiddleware.Protected(), userHandler.User)
+	api.Get("/user", authMiddleware.Protected(), userHandler.User)
 
-    api.Post("/projects", authMiddleware.Protected(), projectHandler.CreateProject)
-    api.Get("/projects", authMiddleware.Protected(), projectHandler.Projects)
+	api.Post("/projects", authMiddleware.Protected(), projectHandler.CreateProject)
+	api.Get("/projects", authMiddleware.Protected(), projectHandler.Projects)
 
-    log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":3000"))
 }

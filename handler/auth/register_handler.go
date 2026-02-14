@@ -31,7 +31,7 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 		})
 	}
 
-	user, err := h.authService.Register(req.Email, req.Password, req.FirstName, req.LastName)
+	user, err := h.authService.Register(c.Context(), req.Email, req.Password, req.FirstName, req.LastName)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),

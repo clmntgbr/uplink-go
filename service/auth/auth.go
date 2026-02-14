@@ -1,6 +1,7 @@
-package service
+package auth
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -33,7 +34,7 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-func (s *AuthService) Register(email, password, firstName, lastName string) (*domain.User, error) {
+func (s *AuthService) Register(ctx context.Context, email, password, firstName, lastName string) (*domain.User, error) {
 	existingUser, _ := s.userRepo.FindByEmail(email)
 	if existingUser != nil {
 		return nil, errors.New("email already exists")
@@ -48,7 +49,7 @@ func (s *AuthService) Register(email, password, firstName, lastName string) (*do
 		Name: "Default Project",
 	}
 
-	if err := s.projectRepo.Create(project); err != nil {
+	if err := s.projectRepo.Create(ctx, project); err != nil {
 		return nil, err
 	}
 

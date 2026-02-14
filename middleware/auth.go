@@ -4,18 +4,18 @@ import (
 	"strings"
 
 	"uplink-go/repository"
-	"uplink-go/service"
+	"uplink-go/service/auth"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 )
 
 type AuthMiddleware struct {
-	authService *service.AuthService
+	authService *auth.AuthService
 	userRepo *repository.UserRepository
 }
 
-func NewAuthMiddleware(authService *service.AuthService, userRepo *repository.UserRepository) *AuthMiddleware {
+func NewAuthMiddleware(authService *auth.AuthService, userRepo *repository.UserRepository) *AuthMiddleware {
 	return &AuthMiddleware{
 		authService: authService,
 		userRepo:    userRepo,

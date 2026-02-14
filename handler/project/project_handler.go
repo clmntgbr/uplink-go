@@ -1,56 +1,39 @@
 package project
 
 import (
-	"uplink-go/middleware"
-	"uplink-go/service"
+	"uplink-go/service/project"
 
 	"github.com/gofiber/fiber/v3"
 )
 
 func (h *ProjectHandler) CreateProject(c fiber.Ctx) error {
-	userID, err := middleware.GetUserID(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Unauthorized",
-		})
-	}
+    var input project.CreateInput
 
-	var req service.CreateProjectRequest
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
-	}
+    if err := c.Bind().Body(&input); err != nil {
+        return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+    }
 
-	resp, err := h.createProjectService.Create(userID, req)
-	if err != nil {
-		if err.Error() == "name is required" {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"message": err.Error(),
-			})
-		}
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to create project",
-		})
-	}
+    projectCreated, err := h.projectService.Create(
+        c.Context(),
+        input,
+    )
+    if err != nil {
+        return err
+    }
 
-	return c.JSON(resp)
+    return c.Status(fiber.StatusCreated).JSON(projectCreated)
 }
+
 
 func (h *ProjectHandler) Projects(c fiber.Ctx) error {
-	userID, err := middleware.GetUserID(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Unauthorized",
-		})
-	}
+    projects, err := h.projectService.FindAll(
+        c.Context(),
+    )
+    if err != nil {
+        return err
+    }
 
-	resp, err := h.getProjectsService.Projects(userID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Failed to fetch projects",
-		})
-	}
-
-	return c.JSON(resp)
+    return c.JSON(projects)
 }
+
+

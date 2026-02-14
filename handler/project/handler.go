@@ -1,18 +1,16 @@
 package project
 
 import (
-	"uplink-go/service"
+	"uplink-go/service/project"
 )
 
 type ProjectHandler struct {
-	getProjectsService *service.GetProjectsService
-	createProjectService *service.CreateProjectService
+	projectService *project.Service
 }
 
-func NewProjectHandler(getProjectsService *service.GetProjectsService, createProjectService *service.CreateProjectService) *ProjectHandler {
+func NewProjectHandler(service *project.Service) *ProjectHandler {
 	return &ProjectHandler{
-		getProjectsService: getProjectsService,
-		createProjectService: createProjectService,
+		projectService: service,
 	}
 }
 
