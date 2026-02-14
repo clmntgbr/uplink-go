@@ -1,6 +1,8 @@
 package project
 
 import (
+	"errors"
+	apperrors "uplink-go/errors"
 	"uplink-go/middleware"
 	"uplink-go/service/project"
 
@@ -75,13 +77,9 @@ func (h *ProjectHandler) ProjectById(c fiber.Ctx) error {
 		})
 	}
 
-	project, err := h.projectService.FindById(
-		c.Context(),
-		userID,
-		projectUUID,
-	)
+	project, err := h.projectService.FindById(c.Context(), userID, projectUUID)
 	if err != nil {
-		if err.Error() == "project not found" {
+		if errors.Is(err, apperrors.ErrProjectNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"message": "Project not found",
 			})

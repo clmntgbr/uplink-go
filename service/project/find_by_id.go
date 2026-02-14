@@ -3,8 +3,9 @@ package project
 import (
 	"context"
 	"errors"
-	"uplink-go/dto"
 	"gorm.io/gorm"
+	"uplink-go/dto"
+	apperrors "uplink-go/errors"
 
 	"github.com/google/uuid"
 )
@@ -13,7 +14,7 @@ func (s *Service) FindById(ctx context.Context, userID uuid.UUID, projectID uuid
 	project, err := s.repo.FindByID(ctx, projectID, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return dto.ProjectResponse{}, errors.New("project not found")
+			return dto.ProjectResponse{}, apperrors.ErrProjectNotFound
 		}
 		return dto.ProjectResponse{}, err
 	}
