@@ -30,7 +30,7 @@ func (r *UserRepository) FindByEmail(email string) (*domain.User, error) {
 
 func (r *UserRepository) FindByID(id uuid.UUID) (*domain.User, error) {
 	var user domain.User
-	err := r.db.First(&user, "id = ?", id).Error
+	err := r.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

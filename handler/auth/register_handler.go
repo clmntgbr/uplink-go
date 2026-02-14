@@ -7,6 +7,8 @@ import (
 type RegisterRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	FirstName string `json:"first_name"`
+	LastName string `json:"last_name"`
 }
 
 func (h *AuthHandler) Register(c fiber.Ctx) error {
@@ -17,9 +19,9 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 		})
 	}
 
-	if req.Email == "" || req.Password == "" {
+	if req.Email == "" || req.Password == "" || req.FirstName == "" || req.LastName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Email and password are required",
+			"error": "Email, password, first name and last name are required",
 		})
 	}
 
@@ -29,7 +31,7 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 		})
 	}
 
-	user, err := h.authService.Register(req.Email, req.Password)
+	user, err := h.authService.Register(req.Email, req.Password, req.FirstName, req.LastName)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
@@ -48,6 +50,10 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 		"user": fiber.Map{
 			"id":    user.ID,
 			"email": user.Email,
+			"first_name": user.FirstName,
+			"last_name": user.LastName,
+			"avatar": user.Avatar,
+			"created_at": user.CreatedAt,
 		},
 	})
 }

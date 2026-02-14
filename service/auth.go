@@ -31,7 +31,7 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-func (s *AuthService) Register(email, password string) (*domain.User, error) {
+func (s *AuthService) Register(email, password, firstName, lastName string) (*domain.User, error) {
 	existingUser, _ := s.userRepo.FindByEmail(email)
 	if existingUser != nil {
 		return nil, errors.New("email already exists")
@@ -45,6 +45,9 @@ func (s *AuthService) Register(email, password string) (*domain.User, error) {
 	user := &domain.User{
 		Email:    email,
 		Password: string(hashedPassword),
+		FirstName: firstName,
+		LastName: lastName,
+		Avatar: "https://avatar-placeholder.iran.liara.run/avatars/male",
 	}
 
 	if err := s.userRepo.Create(user); err != nil {

@@ -29,6 +29,10 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 		"user": fiber.Map{
 			"id":    user.ID,
 			"email": user.Email,
+			"first_name": user.FirstName,
+			"last_name": user.LastName,
+			"avatar": user.Avatar,
+			"created_at": user.CreatedAt,
 		},
 	})
 }
