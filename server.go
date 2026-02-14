@@ -26,7 +26,7 @@ func main() {
     userRepo := repository.NewUserRepository(db)
     projectRepo := repository.NewProjectRepository(db)
     authService := service.NewAuthService(userRepo, projectRepo, cfg)
-	authMiddleware := middleware.NewAuthMiddleware(authService)
+	authMiddleware := middleware.NewAuthMiddleware(authService, userRepo)
 
     userHandler := user.NewUserHandler(userRepo)
 	authHandler := auth.NewAuthHandler(authService)
@@ -55,6 +55,8 @@ func main() {
 	api.Post("/login", authHandler.Login)
 
     api.Get("/user", authMiddleware.Protected(), userHandler.User)
+
+    api.Post("/projects", authMiddleware.Protected(), projectHandler.CreateProject)
     api.Get("/projects", authMiddleware.Protected(), projectHandler.Projects)
 
     log.Fatal(app.Listen(":3000"))

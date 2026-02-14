@@ -10,14 +10,14 @@ func (h *UserHandler) User(c fiber.Ctx) error {
 	userID, err := middleware.GetUserID(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Unauthorized",
+			"message": "Unauthorized",
 		})
 	}
 
 	user, err := h.userRepo.FindByID(userID)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "User not found",
+			"message": "User not found",
 		})
 	}
 

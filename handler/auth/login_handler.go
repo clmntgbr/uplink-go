@@ -20,7 +20,7 @@ func (h *AuthHandler) Login(c fiber.Ctx) error {
 	token, user, err := h.authService.Login(req.Email, req.Password)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": err.Error(),
+			"message": err.Error(),
 		})
 	}
 

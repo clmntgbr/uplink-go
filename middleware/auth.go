@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"uplink-go/repository"
 	"uplink-go/service"
 
 	"github.com/gofiber/fiber/v3"
@@ -12,11 +13,13 @@ import (
 
 type AuthMiddleware struct {
 	authService *service.AuthService
+	userRepo *repository.UserRepository
 }
 
-func NewAuthMiddleware(authService *service.AuthService) *AuthMiddleware {
+func NewAuthMiddleware(authService *service.AuthService, userRepo *repository.UserRepository) *AuthMiddleware {
 	return &AuthMiddleware{
 		authService: authService,
+		userRepo:    userRepo,
 	}
 }
 
@@ -25,7 +28,6 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 		authHeader := c.Get("Authorization")
 		if authHeader == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":   "unauthorized",
 				"message": "Missing authorization header",
 			})
 		}
@@ -33,14 +35,12 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":   "unauthorized",
 				"message": "Invalid authorization header format",
 			})
 		}
 
 		if parts[0] != "Bearer" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":   "unauthorized",
 				"message": "Authorization scheme must be Bearer",
 			})
 		}
@@ -48,7 +48,6 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 		tokenString := strings.TrimSpace(parts[1])
 		if tokenString == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":   "unauthorized",
 				"message": "Token cannot be empty",
 			})
 		}
@@ -70,22 +69,33 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 			}
 
 			return c.Status(statusCode).JSON(fiber.Map{
-				"error":   "unauthorized",
 				"message": message,
 			})
 		}
 
 		if claims == nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":   "unauthorized",
 				"message": "Invalid token claims",
 			})
 		}
 
 		if claims.UserID == uuid.Nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error":   "unauthorized",
 				"message": "Missing user ID in token",
+			})
+		}
+
+		if claims.Email == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Missing email in token",
+			})
+		}
+
+
+		_, err = m.userRepo.FindByID(claims.UserID)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"message": "User not found",
 			})
 		}
 
