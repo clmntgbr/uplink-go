@@ -4,6 +4,10 @@ import (
 	"log"
 
 	"uplink-go/config"
+	"uplink-go/handler"
+	"uplink-go/middleware"
+	"uplink-go/repository"
+	"uplink-go/service"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
@@ -16,6 +20,11 @@ func main() {
 
 	db := config.ConnectDatabase(cfg)
 	config.AutoMigrate(db)
+
+    userRepo := repository.NewUserRepository(db)
+	authService := service.NewAuthService(userRepo, cfg)
+	authMiddleware := middleware.NewAuthMiddleware(authService)
+	authHandler := handler.NewAuthHandler(authService)
 
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
@@ -34,7 +43,12 @@ func main() {
 	app.Get(healthcheck.ReadinessEndpoint, healthcheck.New())
 	app.Get(healthcheck.StartupEndpoint, healthcheck.New())
 
-	// api := app.Group("/api")
+	api := app.Group("/api")
+
+    api.Post("/register", authHandler.Register)
+	api.Post("/login", authHandler.Login)
+
+    api.Get("/me", authMiddleware.Protected(), authHandler.Me)
 
     log.Fatal(app.Listen(":3000"))
 }
