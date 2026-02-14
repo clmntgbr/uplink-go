@@ -7,12 +7,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *Service) FindAll(ctx context.Context, userID uuid.UUID) ([]dto.ProjectResponse, error) {
-    projects, err := s.repo.FindAll(ctx, userID)
+func (s *Service) FindAll(ctx context.Context, userID uuid.UUID) (*dto.HydraResponse[dto.ProjectResponse], error) {
+	projects, err := s.repo.FindAll(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
-	
-	resp := dto.ToProjectsResponse(projects)
-	return resp, nil
+
+	return dto.NewHydraResponse(
+		dto.ToProjectsResponse(projects),
+		1,
+		10,
+		len(projects),
+	), nil
 }
