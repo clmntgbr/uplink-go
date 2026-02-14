@@ -1,6 +1,7 @@
 package project
 
 import (
+	"uplink-go/dto"
 	"uplink-go/middleware"
 
 	"github.com/gofiber/fiber/v3"
@@ -21,13 +22,10 @@ func (h *ProjectHandler) Projects(c fiber.Ctx) error {
 		})
 	}
 
-	result := make([]fiber.Map, len(projects))
-	for i, p := range projects {
-		result[i] = fiber.Map{
-			"id":   p.ID,
-			"name": p.Name,
-		}
-	}
-
-	return c.JSON(result)
+	return c.JSON(dto.NewHydraResponse(
+		dto.ToProjectsResponse(projects),
+		1,
+		10,
+		len(projects),
+	))
 }

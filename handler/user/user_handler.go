@@ -28,5 +28,6 @@ func (h *UserHandler) User(c fiber.Ctx) error {
 		"last_name": user.LastName,
 		"avatar": user.Avatar,
 		"created_at": user.CreatedAt,
+		"updated_at": user.UpdatedAt,
 	})
 }
