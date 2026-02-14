@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"strings"
 
 	"uplink-go/service"
@@ -52,8 +53,11 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 			})
 		}
 
+		fmt.Printf("[DEBUG] Raw token: '%s'\n", tokenString)
+
 		claims, err := m.authService.ValidateToken(tokenString)
 		if err != nil {
+			fmt.Printf("[DEBUG] Token validation error: %v\n", err)
 			statusCode := fiber.StatusUnauthorized
 			message := "Invalid or expired token"
 			switch {
