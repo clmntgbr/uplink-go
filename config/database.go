@@ -3,21 +3,23 @@ package config
 import (
 	"log"
 	"uplink-go/domain"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 func ConnectDatabase(cfg *Config) *gorm.DB {
-	var logLevel logger.LogLevel
-	logLevel = logger.Info
+	logLevel := logger.Warn
+	if cfg.Environment == "development" {
+		logLevel = logger.Info
+	}
 
-	db, error := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{
 		Logger: logger.Default.LogMode(logLevel),
 	})
-
-	if error != nil {
-		log.Fatal("Failed to connect to database:", error)
+	if err != nil {
+		log.Fatal("Failed to connect to database: ", err)
 	}
 
 	log.Println("✅ Database connected")
@@ -25,13 +27,12 @@ func ConnectDatabase(cfg *Config) *gorm.DB {
 }
 
 func AutoMigrate(db *gorm.DB) {
-	error := db.AutoMigrate(
+	err := db.AutoMigrate(
 		&domain.User{},
 	)
-	
-	if error != nil {
-		log.Fatal("Failed to migrate database:", error)
+	if err != nil {
+		log.Fatal("Failed to migrate database: ", err)
 	}
-	
+
 	log.Println("✅ Database migrated")
 }

@@ -3,16 +3,14 @@ package config
 import (
 	"log"
 	"os"
-	"time"
+
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	DatabaseURL    string
-	JWTSecret      string
-	JWTExpiration  time.Duration
-	Port           string
-	Environment    string
+	DatabaseURL string
+	Port        string
+	Environment string
 }
 
 func Load() *Config {
