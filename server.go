@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"uplink-go/config"
+    "uplink-go/config"
 	"uplink-go/handler/auth"
 	"uplink-go/handler/project"
 	"uplink-go/handler/user"
@@ -25,12 +25,14 @@ func main() {
 
     userRepo := repository.NewUserRepository(db)
     projectRepo := repository.NewProjectRepository(db)
-    authService := service.NewAuthService(userRepo, projectRepo, cfg)
+    authService := auth.NewAuthService(userRepo, projectRepo, cfg)
 	authMiddleware := middleware.NewAuthMiddleware(authService, userRepo)
+    createProjectService := project.NewCreateProjectService(projectRepo)
+    getProjectsService := project.NewGetProjectsService(userRepo)
 
     userHandler := user.NewUserHandler(userRepo)
 	authHandler := auth.NewAuthHandler(authService)
-    projectHandler := project.NewProjectHandler(projectRepo, userRepo)
+    projectHandler := project.NewProjectHandler(getProjectsService, createProjectService)
 
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,

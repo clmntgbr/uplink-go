@@ -1,31 +1,13 @@
 package project
 
 import (
-	"uplink-go/domain"
-	"uplink-go/dto"
 	"uplink-go/middleware"
+	"uplink-go/service"
 
 	"github.com/gofiber/fiber/v3"
 )
 
-type CreateProjectRequest struct {
-	Name string `json:"name"`
-}
-
 func (h *ProjectHandler) CreateProject(c fiber.Ctx) error {
-	var req CreateProjectRequest
-	if err := c.Bind().JSON(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
-	}
-
-	if req.Name == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Name is required",
-		})
-	}
-
 	userID, err := middleware.GetUserID(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -33,22 +15,26 @@ func (h *ProjectHandler) CreateProject(c fiber.Ctx) error {
 		})
 	}
 
-	project := &domain.Project{
-		Name: req.Name,
-		Users: []domain.User{
-			{
-				ID: userID,
-			},
-		},
+	var req service.CreateProjectRequest
+	if err := c.Bind().JSON(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body",
+		})
 	}
 
-	if err := h.projectRepo.Create(project); err != nil {
+	resp, err := h.createProjectService.Create(userID, req)
+	if err != nil {
+		if err.Error() == "name is required" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": err.Error(),
+			})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Failed to create project",
 		})
 	}
 
-	return c.JSON(dto.ToProjectResponse(*project))
+	return c.JSON(resp)
 }
 
 func (h *ProjectHandler) Projects(c fiber.Ctx) error {
@@ -59,12 +45,12 @@ func (h *ProjectHandler) Projects(c fiber.Ctx) error {
 		})
 	}
 
-	projects, err := h.userRepo.FindProjectsByUserID(userID)
+	resp, err := h.getProjectsService.Projects(userID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Failed to fetch projects",
+		})
+	}
 
-	return c.JSON(dto.NewHydraResponse(
-		dto.ToProjectsResponse(projects),
-		1,
-		10,
-		len(projects),
-	))
+	return c.JSON(resp)
 }

@@ -1,16 +1,18 @@
 package project
 
-import "uplink-go/repository"
+import (
+	"uplink-go/service"
+)
 
 type ProjectHandler struct {
-	projectRepo *repository.ProjectRepository
-	userRepo *repository.UserRepository
+	getProjectsService *service.GetProjectsService
+	createProjectService *service.CreateProjectService
 }
 
-func NewProjectHandler(projectRepo *repository.ProjectRepository, userRepo *repository.UserRepository) *ProjectHandler {
+func NewProjectHandler(getProjectsService *service.GetProjectsService, createProjectService *service.CreateProjectService) *ProjectHandler {
 	return &ProjectHandler{
-		projectRepo: projectRepo,
-		userRepo: userRepo,
+		getProjectsService: getProjectsService,
+		createProjectService: createProjectService,
 	}
 }
 
