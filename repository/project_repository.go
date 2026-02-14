@@ -35,7 +35,7 @@ func (r *ProjectRepository) Create(ctx context.Context, project *domain.Project)
 func (r *ProjectRepository) FindAll(ctx context.Context, userID uuid.UUID) ([]domain.Project, error) {
 	var user domain.User
 	user.ID = userID
-	
+
 	var projects []domain.Project
 	err := r.db.WithContext(ctx).Model(&user).Association("Projects").Find(&projects)
 	if err != nil {
@@ -44,15 +44,18 @@ func (r *ProjectRepository) FindAll(ctx context.Context, userID uuid.UUID) ([]do
 	return projects, nil
 }
 
-func (r *ProjectRepository) FindByID(ctx context.Context, id string, userID uuid.UUID) (*domain.Project, error) {
+func (r *ProjectRepository) FindByID(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*domain.Project, error) {
 	var project domain.Project
-	err := r.db.WithContext(ctx).Where("id = ? AND user_id = ?", id, userID).First(&project).Error
+	err := r.db.WithContext(ctx).
+		Joins("JOIN user_projects ON user_projects.project_id = projects.id").
+		Where("projects.id = ? AND user_projects.user_id = ?", id, userID).
+		First(&project).Error
 	if err != nil {
 		return nil, err
 	}
 	return &project, nil
 }
 
-func (r *ProjectRepository) Delete(ctx context.Context, id string, userID uuid.UUID) error {
+func (r *ProjectRepository) Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error {
 	return r.db.WithContext(ctx).Delete(&domain.Project{}, "id = ? AND user_id = ?", id, userID).Error
 }

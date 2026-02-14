@@ -10,8 +10,8 @@ import (
 type Repository interface {
 	Create(ctx context.Context, project *domain.Project) error
 	FindAll(ctx context.Context, userID uuid.UUID) ([]domain.Project, error)
-	FindByID(ctx context.Context, id string, userID uuid.UUID) (*domain.Project, error)
-	Delete(ctx context.Context, id string, userID uuid.UUID) error
+	FindByID(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*domain.Project, error)
+	Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
 }
 
 type Service struct {

@@ -60,6 +60,7 @@ func main() {
 
 	api.Post("/projects", authMiddleware.Protected(), projectHandler.CreateProject)
 	api.Get("/projects", authMiddleware.Protected(), projectHandler.Projects)
+	api.Get("/projects/:id", authMiddleware.Protected(), projectHandler.ProjectById)
 
 	log.Fatal(app.Listen(":3000"))
 }
