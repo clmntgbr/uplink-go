@@ -4,12 +4,15 @@ import (
 	"log"
 	"uplink-go/config"
 	authHandler "uplink-go/handler/auth"
+	endpointHandler "uplink-go/handler/endpoint"
 	projectHandler "uplink-go/handler/project"
 	userHandler "uplink-go/handler/user"
+
+	"uplink-go/middleware"
 	"uplink-go/repository"
 	"uplink-go/service/auth"
+	"uplink-go/service/endpoint"
 	"uplink-go/service/project"
-	"uplink-go/middleware"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
@@ -25,15 +28,18 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	projectRepo := repository.NewProjectRepository(db)
+	endpointRepo := repository.NewEndpointRepository(db)
 
 	authService := auth.NewAuthService(userRepo, projectRepo, cfg)
 	projectService := project.New(projectRepo)
+	endpointService := endpoint.New(endpointRepo)
 
 	authMiddleware := middleware.NewAuthMiddleware(authService, userRepo)
 
 	userHandler := userHandler.NewUserHandler(userRepo)
 	authHandler := authHandler.NewAuthHandler(authService)
 	projectHandler := projectHandler.NewProjectHandler(projectService)
+	endpointHandler := endpointHandler.NewEndpointHandler(endpointService)
 
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
@@ -66,6 +72,8 @@ func main() {
 	api.Get("/projects", projectHandler.Projects)
 	api.Get("/projects/:id", projectHandler.ProjectById)
 	api.Post("/projects/activate", projectHandler.ActivateProject)
+
+	api.Get("/endpoints", endpointHandler.Endpoints)
 
 	log.Fatal(app.Listen(":3000"))
 }
