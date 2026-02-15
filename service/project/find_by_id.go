@@ -11,6 +11,13 @@ import (
 )
 
 func (s *Service) FindById(ctx context.Context, userID uuid.UUID, projectID uuid.UUID) (dto.ProjectResponse, error) {
+	activeProjectID, err := s.repo.FindActiveProject(ctx, userID)
+	if err != nil {
+		return dto.ProjectResponse{}, err
+	}
+
+	ctx = context.WithValue(ctx, "activeProjectID", activeProjectID)
+
 	project, err := s.repo.FindByID(ctx, projectID, userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -19,10 +26,5 @@ func (s *Service) FindById(ctx context.Context, userID uuid.UUID, projectID uuid
 		return dto.ProjectResponse{}, err
 	}
 
-	activeProjectID, err := s.repo.FindActiveProject(ctx, userID)
-	if err != nil {
-		return dto.ProjectResponse{}, err
-	}
-
-	return dto.ToProjectResponse(*project, activeProjectID), nil
+	return dto.ToProjectResponse(*project), nil
 }

@@ -8,18 +8,21 @@ import (
 )
 
 func (s *Service) FindAll(ctx context.Context, userID uuid.UUID) (*dto.HydraResponse[dto.ProjectResponse], error) {
+	
+	activeProjectID, err := s.repo.FindActiveProject(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	
+	ctx = context.WithValue(ctx, "activeProjectID", activeProjectID)
+	
 	projects, err := s.repo.FindAll(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	activeProjectID, err := s.repo.FindActiveProject(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
 	return dto.NewHydraResponse(
-		dto.ToProjectsResponse(projects, activeProjectID),
+		dto.ToProjectsResponse(projects),
 		1,
 		10,
 		len(projects),

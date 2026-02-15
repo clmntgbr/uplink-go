@@ -15,25 +15,20 @@ type ProjectResponse struct {
 	IsActive  bool      `json:"isActive"`
 }
 
-func ToProjectResponse(p domain.Project, activeProjectID *uuid.UUID) ProjectResponse {
-	isActive := false
-	if activeProjectID != nil && *activeProjectID == p.ID {
-		isActive = true
-	}
-
+func ToProjectResponse(p domain.Project) ProjectResponse {
 	return ProjectResponse{
 		ID:   p.ID,
 		Name: p.Name,
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
-		IsActive:  isActive,
+		IsActive: p.IsActive,
 	}
 }
 
-func ToProjectsResponse(projects []domain.Project, activeProjectID *uuid.UUID) []ProjectResponse {
+func ToProjectsResponse(projects []domain.Project) []ProjectResponse {
 	result := make([]ProjectResponse, len(projects))
 	for i, p := range projects {
-		result[i] = ToProjectResponse(p, activeProjectID)
+		result[i] = ToProjectResponse(p)
 	}
 	return result
 }

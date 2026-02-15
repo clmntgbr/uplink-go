@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Project struct {
@@ -16,8 +17,19 @@ type Project struct {
 
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+	IsActive bool `gorm:"-"`
 }
 
 func (Project) TableName() string {
 	return "projects"
+}
+
+func (p *Project) AfterFind(tx *gorm.DB) error {
+	if activeProjectID, ok := tx.Statement.Context.Value("activeProjectID").(*uuid.UUID); ok {
+		if activeProjectID != nil && *activeProjectID == p.ID {
+			p.IsActive = true
+		}
+	}
+	return nil
 }
