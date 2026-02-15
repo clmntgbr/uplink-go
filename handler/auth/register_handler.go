@@ -2,6 +2,7 @@ package auth
 
 import (
 	"uplink-go/dto"
+	"uplink-go/validator"
 
 	"github.com/gofiber/fiber/v3"
 )
@@ -14,15 +15,10 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 		})
 	}
 
-	if req.Email == "" || req.Password == "" || req.FirstName == "" || req.LastName == "" {
+	if err := validator.ValidateStruct(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Email, password, first name and last name are required",
-		})
-	}
-
-	if len(req.Password) < 8 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "Password must be at least 8 characters",
+			"message": "Validation failed",
+			"errors":  validator.FormatValidationErrors(err),
 		})
 	}
 
