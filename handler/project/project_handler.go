@@ -80,6 +80,7 @@ func (h *ProjectHandler) ProjectById(c fiber.Ctx) error {
 			"message": "Invalid project ID format",
 		})
 	}
+
 	ctx := c.Context()
 
 	if userID := c.Locals(ctxutil.UserIDKey); userID != nil {
@@ -103,4 +104,43 @@ func (h *ProjectHandler) ProjectById(c fiber.Ctx) error {
 	}
 
 	return c.JSON(project)
+}
+
+func (h *ProjectHandler) ActivateProject(c fiber.Ctx) error {
+	var input dto.ActivateInput
+
+	if err := c.Bind().Body(&input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid request body",
+		})
+	}
+
+	if err := validator.ValidateStruct(&input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Validation failed",
+			"errors":  validator.FormatValidationErrors(err),
+		})
+	}
+
+	ctx := c.Context()
+
+	if userID := c.Locals(ctxutil.UserIDKey); userID != nil {
+		ctx = ctxutil.WithUserID(ctx, userID.(uuid.UUID))
+	}
+
+	err := h.projectService.ActivateProject(ctx, input)
+	if err != nil {
+		if err.Error() == "project not found or access denied" {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"message": "Project not found or access denied",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Internal server error",
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "Project activated successfully",
+	})
 }

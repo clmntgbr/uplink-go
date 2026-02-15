@@ -65,6 +65,7 @@ func main() {
 	api.Post("/projects", projectHandler.CreateProject)
 	api.Get("/projects", projectHandler.Projects)
 	api.Get("/projects/:id", projectHandler.ProjectById)
+	api.Post("/projects/activate", projectHandler.ActivateProject)
 
 	log.Fatal(app.Listen(":3000"))
 }

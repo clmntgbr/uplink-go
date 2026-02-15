@@ -19,6 +19,10 @@ type CreateInput struct {
 	Name string `json:"name" validate:"required,min=3,max=100"`
 }
 
+type ActivateInput struct {
+	ProjectID uuid.UUID `json:"projectId" validate:"required,uuid"`
+}
+
 func ToProjectResponse(p domain.Project) ProjectResponse {
 	return ProjectResponse{
 		ID:   p.ID,

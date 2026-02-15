@@ -13,6 +13,7 @@ type Repository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*domain.Project, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	FindActiveProject(ctx context.Context, userID uuid.UUID) (*uuid.UUID, error)
+	ActivateProject(ctx context.Context, projectID uuid.UUID) error
 }
 
 type Service struct {

@@ -117,3 +117,28 @@ func (r *ProjectRepository) FindActiveProject(ctx context.Context, userID uuid.U
 
 	return result.ActiveProjectID, nil
 }
+
+func (r *ProjectRepository) ActivateProject(ctx context.Context, projectID uuid.UUID) error {
+	userID, ok := ctxutil.GetUserIDFromContext(ctx)
+	if !ok {
+		return errors.New("user ID not found in context")
+	}
+
+	var project domain.Project
+	err := r.db.WithContext(ctx).
+		Joins("JOIN user_projects ON user_projects.project_id = projects.id").
+		Where("projects.id = ? AND user_projects.user_id = ?", projectID, userID).
+		First(&project).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("project not found or access denied")
+		}
+		return err
+	}
+
+	return r.db.WithContext(ctx).
+		Model(&domain.User{}).
+		Where("id = ?", userID).
+		Update("active_project_id", projectID).Error
+}
