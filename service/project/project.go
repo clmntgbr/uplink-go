@@ -9,9 +9,9 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, project *domain.Project) error
-	FindAll(ctx context.Context, userID uuid.UUID) ([]domain.Project, error)
-	FindByID(ctx context.Context, id uuid.UUID, userID uuid.UUID) (*domain.Project, error)
-	Delete(ctx context.Context, id uuid.UUID, userID uuid.UUID) error
+	FindAll(ctx context.Context) ([]domain.Project, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*domain.Project, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 	FindActiveProject(ctx context.Context, userID uuid.UUID) (*uuid.UUID, error)
 }
 

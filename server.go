@@ -6,10 +6,10 @@ import (
 	authHandler "uplink-go/handler/auth"
 	projectHandler "uplink-go/handler/project"
 	userHandler "uplink-go/handler/user"
-	"uplink-go/middleware"
 	"uplink-go/repository"
 	"uplink-go/service/auth"
 	"uplink-go/service/project"
+	"uplink-go/middleware"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/healthcheck"
@@ -53,14 +53,18 @@ func main() {
 
 	api := app.Group("/api")
 
+	api.Use(authMiddleware.Protected())
+	api.Use(middleware.InjectUserContext())
+	api.Use(middleware.InjectActiveProject(projectRepo))
+
 	api.Post("/register", authHandler.Register)
 	api.Post("/login", authHandler.Login)
 
-	api.Get("/user", authMiddleware.Protected(), userHandler.User)
+	api.Get("/user", userHandler.User)
 
-	api.Post("/projects", authMiddleware.Protected(), projectHandler.CreateProject)
-	api.Get("/projects", authMiddleware.Protected(), projectHandler.Projects)
-	api.Get("/projects/:id", authMiddleware.Protected(), projectHandler.ProjectById)
+	api.Post("/projects", projectHandler.CreateProject)
+	api.Get("/projects", projectHandler.Projects)
+	api.Get("/projects/:id", projectHandler.ProjectById)
 
 	log.Fatal(app.Listen(":3000"))
 }
