@@ -19,5 +19,10 @@ func (s *Service) FindById(ctx context.Context, userID uuid.UUID, projectID uuid
 		return dto.ProjectResponse{}, err
 	}
 
-	return dto.ToProjectResponse(*project), nil
+	activeProjectID, err := s.repo.FindActiveProject(ctx, userID)
+	if err != nil {
+		return dto.ProjectResponse{}, err
+	}
+
+	return dto.ToProjectResponse(*project, activeProjectID), nil
 }

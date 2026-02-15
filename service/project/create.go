@@ -31,6 +31,11 @@ func (s *Service) Create(ctx context.Context, input CreateInput, userID uuid.UUI
 		return nil, err
 	}
 
-	resp := dto.ToProjectResponse(*project)
+	activeProjectID, err := s.repo.FindActiveProject(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := dto.ToProjectResponse(*project, activeProjectID)
 	return &resp, nil
 }

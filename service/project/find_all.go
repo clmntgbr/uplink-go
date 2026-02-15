@@ -13,8 +13,13 @@ func (s *Service) FindAll(ctx context.Context, userID uuid.UUID) (*dto.HydraResp
 		return nil, err
 	}
 
+	activeProjectID, err := s.repo.FindActiveProject(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
 	return dto.NewHydraResponse(
-		dto.ToProjectsResponse(projects),
+		dto.ToProjectsResponse(projects, activeProjectID),
 		1,
 		10,
 		len(projects),
