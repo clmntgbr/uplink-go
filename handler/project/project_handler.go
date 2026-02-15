@@ -2,9 +2,10 @@ package project
 
 import (
 	"errors"
+	"uplink-go/dto"
 	apperrors "uplink-go/errors"
 	"uplink-go/middleware"
-	"uplink-go/service/project"
+	"uplink-go/validator"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
@@ -18,10 +19,17 @@ func (h *ProjectHandler) CreateProject(c fiber.Ctx) error {
 		})
 	}
 
-	var input project.CreateInput
+	var input dto.CreateInput
 
 	if err := c.Bind().Body(&input); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+
+	if err := validator.ValidateStruct(&input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Validation failed",
+			"errors":  validator.FormatValidationErrors(err),
+		})
 	}
 
 	projectCreated, err := h.projectService.Create(

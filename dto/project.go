@@ -15,6 +15,10 @@ type ProjectResponse struct {
 	IsActive  bool      `json:"isActive"`
 }
 
+type CreateInput struct {
+	Name string `json:"name" validate:"required,min=10,max=100"`
+}
+
 func ToProjectResponse(p domain.Project) ProjectResponse {
 	return ProjectResponse{
 		ID:   p.ID,
