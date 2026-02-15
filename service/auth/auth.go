@@ -49,7 +49,7 @@ func (s *AuthService) Register(ctx context.Context, email, password, firstName, 
 		Name: "Default Project",
 	}
 
-	if err := s.projectRepo.Create(ctx, project); err != nil {
+	if err := s.projectRepo.Create(ctx, project, uuid.Nil); err != nil {
 		return nil, err
 	}
 

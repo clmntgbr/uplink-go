@@ -18,12 +18,7 @@ func NewProjectRepository(db *gorm.DB) *ProjectRepository {
 	return &ProjectRepository{db: db}
 }
 
-func (r *ProjectRepository) Create(ctx context.Context, project *domain.Project) error {
-	userID, ok := ctxutil.GetUserIDFromContext(ctx)
-	if !ok {
-		return errors.New("user ID not found in context")
-	}
-
+func (r *ProjectRepository) Create(ctx context.Context, project *domain.Project, userID uuid.UUID) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Omit("Users").Create(project).Error; err != nil {
 			return err

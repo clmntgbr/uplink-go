@@ -6,15 +6,8 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
-type RegisterRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	FirstName string `json:"first_name"`
-	LastName string `json:"last_name"`
-}
-
 func (h *AuthHandler) Register(c fiber.Ctx) error {
-	var req RegisterRequest
+	var req dto.RegisterRequest
 	if err := c.Bind().JSON(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Invalid request body",
@@ -48,7 +41,7 @@ func (h *AuthHandler) Register(c fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"token":   token,
-		"user": dto.ToUserResponse(user),
+		"token": token,
+		"user":  dto.ToUserResponse(user),
 	})
 }

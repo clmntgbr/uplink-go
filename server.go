@@ -53,12 +53,12 @@ func main() {
 
 	api := app.Group("/api")
 
+	api.Post("/register", authHandler.Register)
+	api.Post("/login", authHandler.Login)
+
 	api.Use(authMiddleware.Protected())
 	api.Use(middleware.InjectUserContext())
 	api.Use(middleware.InjectActiveProject(projectRepo))
-
-	api.Post("/register", authHandler.Register)
-	api.Post("/login", authHandler.Login)
 
 	api.Get("/user", userHandler.User)
 

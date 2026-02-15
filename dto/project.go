@@ -16,7 +16,7 @@ type ProjectResponse struct {
 }
 
 type CreateInput struct {
-	Name string `json:"name" validate:"required,min=10,max=100"`
+	Name string `json:"name" validate:"required,min=3,max=100"`
 }
 
 func ToProjectResponse(p domain.Project) ProjectResponse {

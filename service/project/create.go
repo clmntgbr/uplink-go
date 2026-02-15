@@ -18,7 +18,7 @@ func (s *Service) Create(ctx context.Context, input dto.CreateInput, userID uuid
 		},
 	}
 
-	if err := s.repo.Create(ctx, project); err != nil {
+	if err := s.repo.Create(ctx, project, userID); err != nil {
 		return nil, err
 	}
 
