@@ -2,14 +2,13 @@ package ctxutil
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 )
 
-type contextKey string
-
 const (
-	ActiveProjectIDKey contextKey = "activeProjectID"
-	UserIDKey          contextKey = "userID"
+	ActiveProjectIDKey = "activeProjectID"
+	UserIDKey          = "userID"
 )
 
 func WithActiveProjectID(ctx context.Context, activeProjectID *uuid.UUID) context.Context {

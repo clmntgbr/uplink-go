@@ -3,6 +3,7 @@ package middleware
 import (
 	"strings"
 
+	"uplink-go/ctxutil"
 	"uplink-go/repository"
 	"uplink-go/service/auth"
 
@@ -12,7 +13,7 @@ import (
 
 type AuthMiddleware struct {
 	authService *auth.AuthService
-	userRepo *repository.UserRepository
+	userRepo    *repository.UserRepository
 }
 
 func NewAuthMiddleware(authService *auth.AuthService, userRepo *repository.UserRepository) *AuthMiddleware {
@@ -94,7 +95,7 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 			})
 		}
 
-		c.Locals("user_id", claims.UserID)
+		c.Locals(ctxutil.UserIDKey, claims.UserID)
 		c.Locals("user_email", claims.Email)
 
 		return c.Next()
@@ -102,7 +103,7 @@ func (m *AuthMiddleware) Protected() fiber.Handler {
 }
 
 func GetUserID(c fiber.Ctx) (uuid.UUID, error) {
-	userID, ok := c.Locals("user_id").(uuid.UUID)
+	userID, ok := c.Locals(ctxutil.UserIDKey).(uuid.UUID)
 	if !ok {
 		return uuid.Nil, fiber.NewError(fiber.StatusUnauthorized, "User not authenticated")
 	}

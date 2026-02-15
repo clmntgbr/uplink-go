@@ -2,11 +2,11 @@ package project
 
 import (
 	"errors"
+	"uplink-go/ctxutil"
 	"uplink-go/dto"
 	apperrors "uplink-go/errors"
 	"uplink-go/middleware"
 	"uplink-go/validator"
-	"uplink-go/ctxutil"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
@@ -48,11 +48,11 @@ func (h *ProjectHandler) CreateProject(c fiber.Ctx) error {
 func (h *ProjectHandler) Projects(c fiber.Ctx) error {
 	ctx := c.Context()
 
-	if userID := c.Locals(string(ctxutil.UserIDKey)); userID != nil {
+	if userID := c.Locals(ctxutil.UserIDKey); userID != nil {
 		ctx = ctxutil.WithUserID(ctx, userID.(uuid.UUID))
 	}
 
-	if activeProjectID := c.Locals(string(ctxutil.ActiveProjectIDKey)); activeProjectID != nil {
+	if activeProjectID := c.Locals(ctxutil.ActiveProjectIDKey); activeProjectID != nil {
 		ctx = ctxutil.WithActiveProjectID(ctx, activeProjectID.(*uuid.UUID))
 	}
 
@@ -82,10 +82,11 @@ func (h *ProjectHandler) ProjectById(c fiber.Ctx) error {
 	}
 	ctx := c.Context()
 
-	if userID := c.Locals(string(ctxutil.UserIDKey)); userID != nil {
+	if userID := c.Locals(ctxutil.UserIDKey); userID != nil {
 		ctx = ctxutil.WithUserID(ctx, userID.(uuid.UUID))
 	}
-	if activeProjectID := c.Locals(string(ctxutil.ActiveProjectIDKey)); activeProjectID != nil {
+
+	if activeProjectID := c.Locals(ctxutil.ActiveProjectIDKey); activeProjectID != nil {
 		ctx = ctxutil.WithActiveProjectID(ctx, activeProjectID.(*uuid.UUID))
 	}
 

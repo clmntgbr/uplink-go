@@ -13,7 +13,7 @@ func InjectUserContext() fiber.Handler {
 			return c.Next()
 		}
 
-		c.Locals(string(ctxutil.UserIDKey), userID)
+		c.Locals(ctxutil.UserIDKey, userID)
 
 		return c.Next()
 	}
