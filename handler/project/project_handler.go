@@ -20,6 +20,12 @@ func (h *ProjectHandler) CreateProject(c fiber.Ctx) error {
 		})
 	}
 
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": c.Locals(ctxutil.UserIDKey),
+		"activeProjectID": c.Locals(ctxutil.ActiveProjectIDKey),
+		"userID": c.Locals(ctxutil.UserIDKey),
+	})
+
 	var input dto.CreateInput
 
 	if err := c.Bind().Body(&input); err != nil {
